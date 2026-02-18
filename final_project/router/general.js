@@ -52,3 +52,5 @@ public_users.get('/title/:title', function (req, res) {
     })
     .then(results => res.status(200).json(results));
 });
+
+module.exports.general = public_users;
