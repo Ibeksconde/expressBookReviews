@@ -32,15 +32,49 @@ public_users.get('/isbn/:isbn', function (req, res) {
 });
 
 // Task 12: Get book details based on Author using Async/Await
-public_users.get('/author/:author', async function (req, res) {
-    const author = req.params.author;
-    try {
-        const bookList = await Promise.resolve(Object.values(books));
-        const filteredBooks = bookList.filter(b => b.author === author);
-        res.status(200).json(filteredBooks);
-    } catch (error) {
-        res.status(500).json({ message: "Error searching by author" });
-    }
+// public_users.get('/author/:author', async function (req, res) {
+//     const author = req.params.author;
+//     try {
+//         const bookList = await Promise.resolve(Object.values(books));
+//         const filteredBooks = bookList.filter(b => b.author === author);
+//         res.status(200).json(filteredBooks);
+//     } catch (error) {
+//         res.status(500).json({ message: "Error searching by author" });
+//     }
+// });
+
+// Task 12: Get book details based on title using async-await
+public_users.get('/title/:title', async function (req, res) {
+  const title = req.params.title;
+
+  try {
+    // Simulating an asynchronous database search
+    const getBooksByTitle = () => {
+      return new Promise((resolve, reject) => {
+        const keys = Object.keys(books);
+        const filtered_books = keys
+          .filter(key => books[key].title.toLowerCase() === title.toLowerCase())
+          .map(key => ({ isbn: key, ...books[key] }));
+
+        if (filtered_books.length > 0) {
+          resolve(filtered_books);
+        } else {
+          // Task-specific error: No book found
+          reject({ status: 404, message: `No books found with the title: ${title}` });
+        }
+      });
+    };
+
+    const result = await getBooksByTitle();
+    return res.status(200).send(JSON.stringify(result, null, 4));
+
+  } catch (error) {
+    // Handles both the 404 (Not Found) and potential 500 (Server Error)
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({
+      message: error.message || "An internal error occurred while fetching the book."
+    });
+  }
 });
 
 // Task 13: Get book details based on Title using Promises
